@@ -7,24 +7,18 @@ public class UI_DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 {
     [field: SerializeField] public int SlotIndex { get; set; }
     [field: SerializeField] public ItemContainer ContainerType { get; set; }
-    
     Transform originalParent;
     Image image;
     CanvasGroup canvasGroup;
     Canvas rootCanvas; 
     RectTransform rectTransform;
-
-    void Awake()
-    {
-        InitComponents();
-    }
+    void Awake() => InitComponents();
 
     void InitComponents()
     {
         if (image == null) image = GetComponent<Image>();
         if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
         if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
-        
         if (rootCanvas == null)
         {
             Canvas parentCanvas = GetComponentInParent<Canvas>();
@@ -35,7 +29,6 @@ public class UI_DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     public void Setup(ItemData item, int index)
     {
         InitComponents(); 
-
         SlotIndex = index;
         if (item != null)
         {
@@ -54,13 +47,11 @@ public class UI_DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     public void OnBeginDrag(PointerEventData eventData)
     {
         originalParent = transform.parent;
-        
         if (rootCanvas != null)
         {
             transform.SetParent(rootCanvas.transform, true); 
             transform.SetAsLastSibling();
         }
-        
         canvasGroup.blocksRaycasts = false; 
     }
 
@@ -71,9 +62,7 @@ public class UI_DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             eventData.position, 
             eventData.pressEventCamera, 
             out Vector2 localPoint))
-        {
-            transform.position = rootCanvas.transform.TransformPoint(localPoint);
-        }
+        {transform.position = rootCanvas.transform.TransformPoint(localPoint);}
     }
 
     public void OnEndDrag(PointerEventData eventData)

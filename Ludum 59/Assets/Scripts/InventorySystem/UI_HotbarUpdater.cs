@@ -14,7 +14,6 @@ public class UI_HotbarUpdater : MonoBehaviour
             uiSlots[i].ContainerType = ItemContainer.Hotbar;
             uiItems[i].ContainerType = ItemContainer.Hotbar;
         }
-        
         Bootstrapper.HotbarManager.OnInventoryChanged += UpdateUI;
         UpdateUI(); 
     }

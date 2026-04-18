@@ -26,7 +26,6 @@ public class UI_HoverFade : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         isHovered = true;
         if (draggableItem.ContainerType != ItemContainer.Hotbar) return;
-
         canvasGroup.DOKill();
         canvasGroup.DOFade(hoverAlpha, fadeDuration).SetUpdate(true);
     }
@@ -35,7 +34,6 @@ public class UI_HoverFade : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         isHovered = false;
         if (draggableItem.ContainerType != ItemContainer.Hotbar) return;
-
         canvasGroup.DOKill();
         canvasGroup.DOFade(defaultAlpha, fadeDuration).SetUpdate(true);
     }

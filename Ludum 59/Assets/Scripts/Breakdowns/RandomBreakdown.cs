@@ -1,10 +1,12 @@
 using UnityEngine;
 using System.Collections;
 
-public class RandomEvent : MonoBehaviour
+public class RandomBreakdown : MonoBehaviour
 {
+
     [SerializeField] Behaviour[] breakdowns;
-    [SerializeField] float timeBetweenEvents = 10f;
+    [SerializeField] float timeBetweenEventsMin;
+    [SerializeField] float timeBetweenEventsMax;
     int _lastEventIndex = -1;
 
     void Start() => StartCoroutine(EventRoutine());
@@ -13,7 +15,7 @@ public class RandomEvent : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(timeBetweenEvents);
+            yield return new WaitForSeconds(Random.Range(timeBetweenEventsMin, timeBetweenEventsMax));
             TriggerNextEvent();
         }
     }

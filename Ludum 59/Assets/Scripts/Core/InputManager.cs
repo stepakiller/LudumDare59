@@ -21,6 +21,7 @@ public class InputManager : MonoBehaviour
     public bool IsSprinting { get; private set; }
     public bool IsCrouching { get; private set; }
     public bool IsJumping { get; private set; }
+    public bool IsInteractHeld { get; private set; }
     public bool IsMouseInput { get; private set; }
     public float MouseSensitivity { get; set; } = 2f;
     public float GamepadSensitivity { get; set; } = 150f;
@@ -78,7 +79,9 @@ public class InputManager : MonoBehaviour
         InputActions.Player.Jump.performed += ctx => IsJumping = true;
         InputActions.Player.Jump.canceled += ctx => IsJumping = false;
 
-        InputActions.Player.Interact.performed += _ => OnInteractPressed?.Invoke();
+        InputActions.Player.Interact.performed += _ => { OnInteractPressed?.Invoke(); IsInteractHeld = true; };
+        InputActions.Player.Interact.canceled += _ => IsInteractHeld = false;
+        
         InputActions.Player.Drop.performed += _ => OnDropPressed?.Invoke();
 
         InputActions.Player.LidarScanner.performed += _ => OnLidarScannerPressed?.Invoke();

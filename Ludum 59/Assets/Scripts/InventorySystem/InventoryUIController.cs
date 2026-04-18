@@ -4,8 +4,6 @@ using DG.Tweening;
 public class InventoryUIController : MonoBehaviour
 {
     [SerializeField] GameObject inventoryCanvas;
-
-    [Header("UI Settings")]
     [SerializeField] GameObject crosshair;
     [SerializeField] CanvasGroup crosshairCanvasGroup;
     [SerializeField] float crosshairFadeDuration = 0.5f;
@@ -27,15 +25,11 @@ public class InventoryUIController : MonoBehaviour
     {
         isInventoryOpen = !isInventoryOpen;
         inventoryCanvas.SetActive(isInventoryOpen);
-        
-        if (crosshairCanvasGroup != null) 
-            DOTween.Kill(crosshairCanvasGroup);
-
+        if (crosshairCanvasGroup != null) DOTween.Kill(crosshairCanvasGroup);
         if (isInventoryOpen)
         {
             if (crosshair != null) crosshair.SetActive(false);
             if (crosshairCanvasGroup != null) crosshairCanvasGroup.alpha = 0f;
-
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             InputManager.Instance.EnableUIInput();
@@ -48,7 +42,6 @@ public class InventoryUIController : MonoBehaviour
                 crosshairCanvasGroup.alpha = 0f;
                 crosshairCanvasGroup.DOFade(1f, crosshairFadeDuration).SetUpdate(true);
             }
-
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             InputManager.Instance.EnablePlayerInput();

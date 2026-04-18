@@ -16,6 +16,7 @@ public class RayCast : MonoBehaviour
     [SerializeField] Camera _camera;
     [SerializeField] float rayDistance = 3f;
     [SerializeField] LayerMask interactLayer;
+    public Interactable CurrentInteractable => _currentInteractable;
     bool _isLookingAtInteractable = false;
     Interactable _currentInteractable; 
 
