@@ -33,9 +33,6 @@ public class InputManager : MonoBehaviour
     public event Action OnUnpausePressed;
     public event Action OnSubmitPressed;
     public event Action OnInventoryPressed;
-    
-    public event Action OnDictaphonePlayUsePressed;
-    public event Action OnDictaphonePauseUsePressed;
 
     public event Action OnLidarScannerPressed;
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -11,23 +12,37 @@ public struct ScanColorMapping
 
 public class LidarScanner : MonoBehaviour
 {
-    [SerializeField] Transform scannerOrigin;
-    [SerializeField] ParticleSystem pointCloudSystem;
-    [SerializeField] float scanRange = 20f;
-    [SerializeField] float horizontalFOV = 60f;
-    [SerializeField] float verticalFOV = 40f;
-    [SerializeField] int raysPerFrame = 100;
-    [SerializeField] LayerMask scanLayer;
-    [SerializeField] float sweepDuration = 1.5f;
-    [SerializeField] float cooldownDuration = 1f;
-    [SerializeField] Color defaultPointColor = Color.white;
-    [SerializeField] float pointSize = 0.05f;
-    [SerializeField] float lineThickness = 2f;
-    
-    [SerializeField] List<ScanColorMapping> colorMappings; 
+    [Header("References")]
+    [SerializeField] Transform _scannerOrigin;
+    [SerializeField] ParticleSystem _pointCloudSystem;
+    [SerializeField] Image _cooldownImage;
 
+    [Header("Scan Settings")]
+    [SerializeField] float _scanRange = 30f;
+    [SerializeField] float _horizontalFOV = 60f;
+    [SerializeField] float _verticalFOV = 40f;
+    [SerializeField] int _raysPerFrame = 200;
+    [SerializeField] LayerMask _scanLayer;
+    [SerializeField] float _sweepDuration = 2;
+    [SerializeField] float _cooldownDuration = 2f;
+    
+    [Header("Visual Settings")]
+    [SerializeField] float _pointSize = 0.03f;
+    [SerializeField] float _lineThickness = 2f;
+    [SerializeField] Color _defaultPointColor = Color.white;
+    [SerializeField] ScanColorMapping[] _colorMappings;
+
+    Dictionary<string, Color> _tagToColorMap;
     Coroutine _scanCoroutine;
     float _lastScanTime = -Mathf.Infinity;
+    ParticleSystem.EmitParams _emitParams;
+    bool _isCoolingDown = false; 
+
+    void Awake()
+    {
+        InitializeColorMap();
+        _emitParams = new ParticleSystem.EmitParams{startSize = _pointSize};
+    }
 
     void Start()
     {
@@ -36,29 +51,52 @@ public class LidarScanner : MonoBehaviour
 
     void OnDestroy()
     {
-        if (InputManager.Instance != null) InputManager.Instance.OnLidarScannerPressed -= TryToggleScan;
+        if (InputManager.Instance != null)  InputManager.Instance.OnLidarScannerPressed -= TryToggleScan;
+    }
+
+    void Update()
+    {
+        if (_isCoolingDown) UpdateCooldownUI();
+    }
+
+    void InitializeColorMap()
+    {
+        _tagToColorMap = new Dictionary<string, Color>();
+        foreach (var mapping in _colorMappings)
+        {
+            if (!_tagToColorMap.ContainsKey(mapping.tag)) _tagToColorMap.Add(mapping.tag, mapping.color);
+        }
     }
 
     void TryToggleScan()
     {
-        if (Time.time < _lastScanTime + cooldownDuration) 
+        if (Time.time < _lastScanTime + _cooldownDuration) 
         {
-            //добавить звук неудачного использования сканера
             return;
         }
         _lastScanTime = Time.time;
-        if (_scanCoroutine != null) StopCoroutine(_scanCoroutine);        
+        _isCoolingDown = true;
+        if (_scanCoroutine != null) StopCoroutine(_scanCoroutine);
         _scanCoroutine = StartCoroutine(ScanSweepCoroutine());
+    }
+
+    void UpdateCooldownUI()
+    {
+        if (_cooldownImage == null) return;
+        float timeSinceLastScan = Time.time - _lastScanTime;
+        float progress = Mathf.Clamp01(timeSinceLastScan / _cooldownDuration);
+        _cooldownImage.fillAmount = progress;
+        if (progress >= 1f) _isCoolingDown = false;
     }
 
     IEnumerator ScanSweepCoroutine()
     {
         float timer = 0f;
-        while (timer < sweepDuration)
+        while (timer < _sweepDuration)
         {
             timer += Time.deltaTime;
-            float progress = timer / sweepDuration;
-            float currentVerticalAngle = Mathf.Lerp(verticalFOV, -verticalFOV, progress);
+            float progress = timer / _sweepDuration;
+            float currentVerticalAngle = Mathf.Lerp(_verticalFOV, -_verticalFOV, progress);
             ScanSweepFrame(currentVerticalAngle);
             yield return null; 
         }
@@ -66,40 +104,36 @@ public class LidarScanner : MonoBehaviour
 
     void ScanSweepFrame(float baseVerticalAngle)
     {
-        for (int i = 0; i < raysPerFrame; i++)
+        Vector3 originPos = _scannerOrigin.position;
+        Quaternion originRot = _scannerOrigin.rotation;
+
+        for (int i = 0; i < _raysPerFrame; i++)
         {
-            float randomYaw = Random.Range(-horizontalFOV, horizontalFOV);
-            float randomPitch = baseVerticalAngle + Random.Range(-lineThickness, lineThickness);
+            float randomYaw = Random.Range(-_horizontalFOV, _horizontalFOV);
+            float randomPitch = baseVerticalAngle + Random.Range(-_lineThickness, _lineThickness);
             Quaternion randomRotation = Quaternion.Euler(randomPitch, randomYaw, 0f);
-            Vector3 rayDirection = scannerOrigin.rotation * randomRotation * Vector3.forward;
-            if (Physics.Raycast(scannerOrigin.position, rayDirection, out RaycastHit hit, scanRange, scanLayer)) 
+            Vector3 rayDirection = originRot * randomRotation * Vector3.forward;
+            if (Physics.Raycast(originPos, rayDirection, out RaycastHit hit, _scanRange, _scanLayer)) 
             {
                 Color finalColor = GetColorForHit(hit.collider);
-                EmitPoint(hit.point, hit.normal, finalColor);
+                EmitPoint(hit.point, finalColor);
             }
         }
     }
 
     Color GetColorForHit(Collider hitCollider)
     {
-        foreach (var mapping in colorMappings)
+        if (_tagToColorMap.TryGetValue(hitCollider.tag, out Color color))
         {
-            if (hitCollider.CompareTag(mapping.tag))
-            {
-                return mapping.color;
-            }
+            return color;
         }
-        return defaultPointColor;
+        return _defaultPointColor;
     }
 
-    void EmitPoint(Vector3 position, Vector3 normal, Color color)
+    void EmitPoint(Vector3 position, Color color)
     {
-        ParticleSystem.EmitParams emitParams = new ParticleSystem.EmitParams
-        {
-            position = position,
-            startColor = color,
-            startSize = pointSize
-        };
-        pointCloudSystem.Emit(emitParams, 1);
+        _emitParams.position = position;
+        _emitParams.startColor = color;
+        _pointCloudSystem.Emit(_emitParams, 1);
     }
 }

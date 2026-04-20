@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Interact
   - Submarine
+  - RobotItem
+  - Yellow
+  - Red
   layers:
   - Default
   - TransparentFX
@@ -16,9 +19,9 @@ TagManager:
   - Ground
   - Interact
   - LidarDots
-  - 
-  - 
-  - 
+  - DeathPlatform
+  - Robot
+  - InvisibleWalls
   - 
   - 
   - 

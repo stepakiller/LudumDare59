@@ -1,64 +1,152 @@
 using UnityEngine;
+using System.Collections;
+using TMPro;
 using UnityEngine.UI;
 
 public class RepairController : MonoBehaviour
 {
-    [SerializeField] RayCast rayCast;
-    [SerializeField] GameObject repairUIContainer; 
-    [SerializeField] Image repairProgressBar; 
+    [SerializeField] RepairableObject[] breakdowns;
+    [SerializeField] float timeBetweenEventsMin = 10f;
+    [SerializeField] float timeBetweenEventsMax = 30f;
+    [SerializeField] TextMeshProUGUI oxygenText;
+    [SerializeField] Image oxygenFillImage;
+    [SerializeField] GameObject gameOverScreen;
+    [SerializeField] float blinkSpeed = 0.5f;
+    [SerializeField] int maxOxygen = 100;
+    [SerializeField] int oxygenDrainPerTick = 5;
+    [SerializeField] float oxygenDrainInterval = 2f;
+    [SerializeField] int warningThreshold = 60;
+    [SerializeField] int criticalThreshold = 30;
 
-    RepairableObject _currentRepairTarget;
-    float _currentRepairTime = 0f;
+    int _currentOxygen;
+    int _lastEventIndex = -1;
+    int _activeBreakdownsCount = 0;
+    
+    Coroutine _oxygenDrainCoroutine;
+    Coroutine _blinkCoroutine;
 
     void Start()
     {
-        if (repairUIContainer != null) repairUIContainer.SetActive(false);
-        if (repairProgressBar != null) repairProgressBar.fillAmount = 0f;
+        _currentOxygen = maxOxygen;
+        UpdateOxygenUI();
+        foreach (var breakdown in breakdowns)
+        {
+            breakdown.OnBroken += HandleBreakdown;
+            breakdown.OnRepaired += HandleRepair;
+        }
+        TriggerNextEvent();
+        StartCoroutine(EventRoutine());
     }
 
-    void Update()
+    void OnDestroy()
     {
-        if (rayCast != null && rayCast.CurrentInteractable is RepairableObject repairable && !repairable.isRepaired)
+        foreach (var breakdown in breakdowns)
         {
-            _currentRepairTarget = repairable;
-            if (HasRequiredItem(repairable))
+            if (breakdown != null)
             {
-                if (InputManager.Instance != null && InputManager.Instance.IsInteractHeld) ProcessRepair();
-                else ResetRepair();
+                breakdown.OnBroken -= HandleBreakdown;
+                breakdown.OnRepaired -= HandleRepair;
             }
-            else ResetRepair();
         }
-        else
+    }
+
+    IEnumerator EventRoutine()
+    {
+        while (true)
         {
-            _currentRepairTarget = null;
-            ResetRepair();
+            yield return new WaitForSeconds(Random.Range(timeBetweenEventsMin, timeBetweenEventsMax));
+            TriggerNextEvent();
         }
     }
 
-    bool HasRequiredItem(RepairableObject target)
+    void TriggerNextEvent()
     {
-        if (target.RequiredItem == null) return true;
-        if (Bootstrapper.Inventory == null || Bootstrapper.Inventory.CurrentItem == null) return false;
-        return Bootstrapper.Inventory.CurrentItem.ItemData == target.RequiredItem;
-    }
-
-    void ProcessRepair()
-    {
-        if (repairUIContainer != null && !repairUIContainer.activeSelf) repairUIContainer.SetActive(true);
-        _currentRepairTime += Time.deltaTime;
-        float progress = _currentRepairTime / _currentRepairTarget.RepairDuration;
-        if (repairProgressBar != null) repairProgressBar.fillAmount = progress;
-        if (_currentRepairTime >= _currentRepairTarget.RepairDuration)
+        if (breakdowns.Length == 0) return;
+        bool hasIntactObjects = false;
+        foreach (var b in breakdowns)
         {
-            _currentRepairTarget.RepairComplete();
-            ResetRepair(); 
+            if (b.IsRepaired) hasIntactObjects = true;
+        }
+        if (!hasIntactObjects) return;
+        int newIndex;
+        int safetyCounter = 0;
+        do
+        {
+            newIndex = Random.Range(0, breakdowns.Length);
+            safetyCounter++;
+        }
+        while ((newIndex == _lastEventIndex || !breakdowns[newIndex].IsRepaired) && safetyCounter < 100);
+        _lastEventIndex = newIndex;
+        breakdowns[newIndex].Break();
+    }
+
+    void HandleBreakdown()
+    {
+        _activeBreakdownsCount++;
+        if (_activeBreakdownsCount > 0 && _oxygenDrainCoroutine == null)
+        {
+            _oxygenDrainCoroutine = StartCoroutine(OxygenDrainRoutine());
+            _blinkCoroutine = StartCoroutine(BlinkImageRoutine()); 
         }
     }
 
-    void ResetRepair()
+    void HandleRepair()
     {
-        _currentRepairTime = 0f;
-        if (repairProgressBar != null) repairProgressBar.fillAmount = 0f;
-        if (repairUIContainer != null && repairUIContainer.activeSelf) repairUIContainer.SetActive(false);
+        _activeBreakdownsCount--;
+        if (_activeBreakdownsCount <= 0)
+        {
+            if (_oxygenDrainCoroutine != null) StopCoroutine(_oxygenDrainCoroutine);
+            if (_blinkCoroutine != null) StopCoroutine(_blinkCoroutine);
+            _oxygenDrainCoroutine = null;
+            _blinkCoroutine = null;
+            _activeBreakdownsCount = 0;
+            UpdateOxygenUI();
+        }
+    }
+
+    IEnumerator OxygenDrainRoutine()
+    {
+        while (_currentOxygen > 0)
+        {
+            yield return new WaitForSeconds(oxygenDrainInterval);
+            _currentOxygen -= oxygenDrainPerTick;
+            _currentOxygen = Mathf.Max(0, _currentOxygen);
+            UpdateOxygenUI();
+            if (_currentOxygen <= 0)
+            {
+                TriggerGameOver();
+                yield break;
+            }
+        }
+    }
+
+    IEnumerator BlinkImageRoutine()
+    {
+        bool isRed = false;
+        while (true)
+        {
+            if (oxygenFillImage != null) oxygenFillImage.color = isRed ? Color.red : new Color(0f, 1.000f, 0.000f, 1.000f);
+            isRed = !isRed;
+            yield return new WaitForSeconds(blinkSpeed);
+        }
+    }
+
+    void UpdateOxygenUI()
+    {
+        if (oxygenText == null || oxygenFillImage == null) return;
+        float fillPercentage = (float)_currentOxygen / maxOxygen;
+        Color targetColor = new Color(0f, 1.000f, 0.000f, 1.000f);
+        if (_currentOxygen <= criticalThreshold) targetColor = Color.red;
+        else if (_currentOxygen <= warningThreshold) targetColor = Color.yellow;
+        oxygenText.text = $"{_currentOxygen}%";
+        oxygenText.color = targetColor; 
+        oxygenFillImage.fillAmount = fillPercentage;
+        if (_blinkCoroutine == null) oxygenFillImage.color = targetColor;
+    }
+
+    void TriggerGameOver()
+    {
+        if (gameOverScreen != null) gameOverScreen.SetActive(true);
+        Time.timeScale = 0f;
     }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using TMPro;
 
 public class RandomBreakdown : MonoBehaviour
 {
@@ -22,9 +23,20 @@ public class RandomBreakdown : MonoBehaviour
 
     void TriggerNextEvent()
     {
+        if (breakdowns == null || breakdowns.Length == 0) return;
+        if (breakdowns.Length == 1)
+        {
+            if (breakdowns[0] != null) breakdowns[0].enabled = true;
+            return;
+        }
         int newIndex;
-        do newIndex = Random.Range(0, breakdowns.Length);
-        while (newIndex == _lastEventIndex);
+        int safetyCounter = 0;
+        do 
+        {
+            newIndex = Random.Range(0, breakdowns.Length);
+            safetyCounter++;
+        }
+        while (newIndex == _lastEventIndex && safetyCounter < 100);
         if (breakdowns[newIndex] != null) breakdowns[newIndex].enabled = true;
         _lastEventIndex = newIndex;
     }
