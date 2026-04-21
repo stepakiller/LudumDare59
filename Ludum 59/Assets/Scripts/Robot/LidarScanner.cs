@@ -36,7 +36,8 @@ public class LidarScanner : MonoBehaviour
     Coroutine _scanCoroutine;
     float _lastScanTime = -Mathf.Infinity;
     ParticleSystem.EmitParams _emitParams;
-    bool _isCoolingDown = false; 
+    bool _isCoolingDown = false;
+    HashSet<Collider> _hitCollidersThisFrame = new HashSet<Collider>();
 
     void Awake()
     {
@@ -106,17 +107,22 @@ public class LidarScanner : MonoBehaviour
     {
         Vector3 originPos = _scannerOrigin.position;
         Quaternion originRot = _scannerOrigin.rotation;
-
+        _hitCollidersThisFrame.Clear();
         for (int i = 0; i < _raysPerFrame; i++)
         {
             float randomYaw = Random.Range(-_horizontalFOV, _horizontalFOV);
             float randomPitch = baseVerticalAngle + Random.Range(-_lineThickness, _lineThickness);
             Quaternion randomRotation = Quaternion.Euler(randomPitch, randomYaw, 0f);
             Vector3 rayDirection = originRot * randomRotation * Vector3.forward;
+            
             if (Physics.Raycast(originPos, rayDirection, out RaycastHit hit, _scanRange, _scanLayer)) 
             {
                 Color finalColor = GetColorForHit(hit.collider);
                 EmitPoint(hit.point, finalColor);
+                if (_hitCollidersThisFrame.Add(hit.collider))
+                {
+                    if (hit.collider.TryGetComponent(out IScannable scannableObject)) scannableObject.OnScanned(hit.point);
+                }
             }
         }
     }

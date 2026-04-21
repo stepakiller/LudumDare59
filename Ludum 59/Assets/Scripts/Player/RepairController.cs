@@ -24,9 +24,13 @@ public class RepairController : MonoBehaviour
     
     Coroutine _oxygenDrainCoroutine;
     Coroutine _blinkCoroutine;
+    WaitForSeconds _oxygenDrainWait;
+    WaitForSeconds _blinkWait;
 
     void Start()
     {
+        _oxygenDrainWait = new WaitForSeconds(oxygenDrainInterval);
+        _blinkWait = new WaitForSeconds(blinkSpeed);
         _currentOxygen = maxOxygen;
         UpdateOxygenUI();
         foreach (var breakdown in breakdowns)
@@ -108,7 +112,7 @@ public class RepairController : MonoBehaviour
     {
         while (_currentOxygen > 0)
         {
-            yield return new WaitForSeconds(oxygenDrainInterval);
+            yield return _oxygenDrainWait;
             _currentOxygen -= oxygenDrainPerTick;
             _currentOxygen = Mathf.Max(0, _currentOxygen);
             UpdateOxygenUI();

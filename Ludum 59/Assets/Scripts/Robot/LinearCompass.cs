@@ -9,10 +9,7 @@ public class LinearCompass : MonoBehaviour
     Transform _targetTransform; 
     float _halfCompassWidth;
 
-    void Start()
-    {
-        _halfCompassWidth = _compassBar.rect.width / 2f;
-    }
+    void Start() => _halfCompassWidth = _compassBar.rect.width / 2f;
 
     void Update()
     {
@@ -21,7 +18,6 @@ public class LinearCompass : MonoBehaviour
     }
     public void SetTarget(Transform newTarget)
     {
-        Debug.Log($"Компас получил новую цель: {(newTarget == null ? "ПУСТО (NULL)" : newTarget.name)}");
         _targetTransform = newTarget;
         _targetIcon.gameObject.SetActive(_targetTransform != null);
     }

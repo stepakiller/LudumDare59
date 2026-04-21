@@ -1,45 +1,74 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 
-public class RepairableObject : MonoBehaviour, Interactable
+public class RepairableObject : MonoBehaviour, IHoldInteractable
 {
     public event Action OnRepaired;
     public event Action OnBroken;
-    [SerializeField] Behaviour breakdownScript;
-    [SerializeField] float repairDuration = 2f;
-    [SerializeField] ItemData requiredItem;
-    public float RepairDuration => repairDuration;
-    public ItemData RequiredItem => requiredItem;
+    [SerializeField] Behaviour _breakdownScript;
+    [SerializeField] float _repairDuration = 2f;
+    [SerializeField] ItemData _requiredItem;
+    [SerializeField] Image _progressFillImage;
+    [SerializeField] GameObject _uiCanvas;
+    float RepairDuration => _repairDuration;
+    ItemData RequiredItem => _requiredItem;
     public bool IsRepaired { get; private set; } = true; 
+    float _currentRepairProgress = 0f;
+    bool _isRepairing = false;
+
+    void Start()
+    {
+        if (_progressFillImage != null) _progressFillImage.fillAmount = 0f;
+        if (_uiCanvas != null) _uiCanvas.SetActive(false);
+    }
 
     public void Interact()
     {
-        if (!IsRepaired)
+        if (IsRepaired || _isRepairing) return;
+        ItemData heldItem = Bootstrapper.Inventory?.CurrentItem?.ItemData;
+        if (_requiredItem != null && heldItem != _requiredItem)
         {
-            ItemData heldItem = Bootstrapper.Inventory?.CurrentItem?.ItemData;
-            
-            if (requiredItem != null && heldItem != requiredItem)
-            {
-                Debug.Log($"Для починки нужен предмет: {requiredItem.ItemName}!");
-                // Здесь в будущем можно вызвать событие для показа UI-уведомления
-                return;
-            }
+            string itemName = _requiredItem.ItemName;
+            NotificationManager.Instance.ShowMessage($"Needed: {itemName}!");
+            return;
+        }
+        _isRepairing = true;
+        if (_uiCanvas != null) _uiCanvas.SetActive(true);
+    }
+
+    public void CancelInteract()
+    {
+        _isRepairing = false;
+        _currentRepairProgress = 0f;
+        if (_progressFillImage != null) _progressFillImage.fillAmount = 0f;
+        if (_uiCanvas != null) _uiCanvas.SetActive(false);
+    }
+
+    void Update()
+    {
+        if (!_isRepairing || IsRepaired) return;
+        _currentRepairProgress += Time.deltaTime;
+        if (_progressFillImage != null) _progressFillImage.fillAmount = _currentRepairProgress / _repairDuration;
+        if (_currentRepairProgress >= _repairDuration)
+        {
             RepairComplete();
+            CancelInteract();
         }
     }
+
     public void Break()
     {
         if (!IsRepaired) return;
         IsRepaired = false;
-        if (breakdownScript != null) breakdownScript.enabled = true;
+        if (_breakdownScript != null) _breakdownScript.enabled = true;
         OnBroken?.Invoke();
     }
 
     public void RepairComplete()
     {
-        if (IsRepaired) return;
         IsRepaired = true;
-        if (breakdownScript != null) breakdownScript.enabled = false;
+        if (_breakdownScript != null) _breakdownScript.enabled = false;
         OnRepaired?.Invoke();
     }
 }

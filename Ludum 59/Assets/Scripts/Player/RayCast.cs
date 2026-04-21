@@ -4,88 +4,118 @@ using UnityEngine.UI;
 public class RayCast : MonoBehaviour
 {
     [Header("Crosshair Settings")]
-    [SerializeField] Image crosshairImage; 
-    [SerializeField] float defaultAlpha = 0.5f;
-    [SerializeField] float activeAlpha = 1f;
-    [SerializeField] Vector3 defaultScale = Vector3.one; 
-    [SerializeField] Vector3 activeScale = new Vector3(1.2f, 1.2f, 1.2f); 
-    
-    [SerializeField] float crosshairAnimationSpeed = 15f; 
+    [SerializeField] private Image _crosshairImage; 
+    [SerializeField] private float _defaultAlpha = 0.5f;
+    [SerializeField] private float _activeAlpha = 1f;
+    [SerializeField] private Vector3 _defaultScale = Vector3.one; 
+    [SerializeField] private Vector3 _activeScale = new Vector3(1.2f, 1.2f, 1.2f); 
+    [SerializeField] private float _crosshairAnimationSpeed = 15f; 
 
     [Header("Raycast Settings")]
-    [SerializeField] Camera _camera;
-    [SerializeField] float rayDistance = 3f;
-    [SerializeField] LayerMask interactLayer;
+    [SerializeField] private Camera _camera;
+    [SerializeField] private float _rayDistance = 3f;
+    [SerializeField] private LayerMask _interactLayer;
+    
+    // Теперь используем IInteractable
     public Interactable CurrentInteractable => _currentInteractable;
-    bool _isLookingAtInteractable = false;
-    Interactable _currentInteractable; 
+    
+    private bool _isLookingAtInteractable = false;
+    private Interactable _currentInteractable; 
 
-    float _targetAlpha;
-    Vector3 _targetScale;
+    private float _targetAlpha;
+    private Vector3 _targetScale;
 
-    void Start()
+    private void Start()
     {
-        _targetAlpha = defaultAlpha;
-        _targetScale = defaultScale;
+        _targetAlpha = _defaultAlpha;
+        _targetScale = _defaultScale;
         
-        if (crosshairImage != null)
+        if (_crosshairImage != null)
         {
-            Color c = crosshairImage.color;
+            Color c = _crosshairImage.color;
             c.a = _targetAlpha;
-            crosshairImage.color = c;
-            crosshairImage.rectTransform.localScale = _targetScale;
+            _crosshairImage.color = c;
+            _crosshairImage.rectTransform.localScale = _targetScale;
         }
+        
         InputManager.Instance.OnInteractPressed += TryInteract;
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         if (InputManager.Instance != null) InputManager.Instance.OnInteractPressed -= TryInteract;
     }
 
-    void Update()
+    private void Update()
     {
         Ray ray = new Ray(_camera.transform.position, _camera.transform.forward);
         
-        if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, interactLayer) && hit.collider.TryGetComponent(out Interactable interactable))
+        if (Physics.Raycast(ray, out RaycastHit hit, _rayDistance, _interactLayer) && hit.collider.TryGetComponent(out Interactable interactable))
         {
-            _currentInteractable = interactable;
-            if (!_isLookingAtInteractable)
+            if (_currentInteractable != interactable)
             {
-                SetCrosshairTargets(activeAlpha, activeScale);
+                // ПРОВЕРКА: Если прошлый объект поддерживал отмену, отменяем его
+                if (_currentInteractable is IHoldInteractable holdablePrevious) 
+                {
+                    holdablePrevious.CancelInteract();
+                }
+
+                _currentInteractable = interactable;
+                SetCrosshairTargets(_activeAlpha, _activeScale);
                 _isLookingAtInteractable = true;
             }
         }
         else
         {
-            _currentInteractable = null;
             if (_isLookingAtInteractable)
             {
-                SetCrosshairTargets(defaultAlpha, defaultScale);
+                // ПРОВЕРКА: Если мы отвернулись, и объект поддерживает отмену
+                if (_currentInteractable is IHoldInteractable holdableCurrent) 
+                {
+                    holdableCurrent.CancelInteract();
+                }
+
+                _currentInteractable = null;
+                SetCrosshairTargets(_defaultAlpha, _defaultScale);
                 _isLookingAtInteractable = false;
             }
         }
         
         AnimateCrosshair();
+
+        // Отпускание кнопки (замени на нужную)
+        if (Input.GetKeyUp(KeyCode.E))
+        {
+            CancelInteract();
+        }
     }
 
-    void TryInteract()
+    private void TryInteract()
     {
-        if (_currentInteractable != null)  _currentInteractable.Interact();
+        if (_currentInteractable != null) _currentInteractable.Interact();
     }
 
-    void SetCrosshairTargets(float alpha, Vector3 targetScale)
+    private void CancelInteract()
+    {
+        // ПРОВЕРКА при отпускании кнопки
+        if (_currentInteractable is IHoldInteractable holdable) 
+        {
+            holdable.CancelInteract();
+        }
+    }
+
+    private void SetCrosshairTargets(float alpha, Vector3 targetScale)
     {
         _targetAlpha = alpha;
         _targetScale = targetScale;
     }
 
-    void AnimateCrosshair()
+    private void AnimateCrosshair()
     {
-        if (crosshairImage == null) return;
-        crosshairImage.rectTransform.localScale = Vector3.Lerp(crosshairImage.rectTransform.localScale, _targetScale, Time.deltaTime * crosshairAnimationSpeed);
-        Color currentColor = crosshairImage.color;
-        currentColor.a = Mathf.Lerp(currentColor.a, _targetAlpha, Time.deltaTime * crosshairAnimationSpeed);
-        crosshairImage.color = currentColor;
+        if (_crosshairImage == null) return;
+        _crosshairImage.rectTransform.localScale = Vector3.Lerp(_crosshairImage.rectTransform.localScale, _targetScale, Time.deltaTime * _crosshairAnimationSpeed);
+        Color currentColor = _crosshairImage.color;
+        currentColor.a = Mathf.Lerp(currentColor.a, _targetAlpha, Time.deltaTime * _crosshairAnimationSpeed);
+        _crosshairImage.color = currentColor;
     }
 }

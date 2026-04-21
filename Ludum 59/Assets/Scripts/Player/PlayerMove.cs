@@ -31,6 +31,7 @@ public class PlayerMove : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         currentHeight = standingHeight;
+        Bootstrapper.PlayerTransform = transform;
     }
 
     void Update()
@@ -97,5 +98,10 @@ public class PlayerMove : MonoBehaviour
         float distance = standingHeight - currentHeight;
         if (distance <= 0.05f) return true;
         return !Physics.SphereCast(startPoint, checkRadius, Vector3.up, out _, distance, obstacleMask);
+    }
+
+    void OnDestroy()
+    {
+        if (Bootstrapper.PlayerTransform == transform) Bootstrapper.PlayerTransform = null;
     }
 }

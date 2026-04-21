@@ -5,6 +5,11 @@ using DG.Tweening;
 
 public class TerminalController : MonoBehaviour, Interactable
 {
+    [SerializeField] AudioSource enterTheRobot;
+    [SerializeField] AudioSource exitTheRobot;
+    [SerializeField] GameObject ambientPlayer;
+    [SerializeField] GameObject soudnsSubmarine;
+    [SerializeField] GameObject ambientRobot;
     [SerializeField] CinemachineCamera monitorZoomCamera;
     [SerializeField] int activeCameraPriority = 20;
     [SerializeField] CanvasGroup playerUIGroup;
@@ -36,6 +41,7 @@ public class TerminalController : MonoBehaviour, Interactable
 
     void EnterRobotMode()
     {
+        enterTheRobot.Play();
         _isControllingRobot = true;
         Bootstrapper.IsPlayerInTerminal = true;
         SetComponentsEnabled(playerComponentsToDisable, false);
@@ -43,13 +49,16 @@ public class TerminalController : MonoBehaviour, Interactable
         SetComponentsEnabled(robotComponentsToEnable, true);
         FadeUI(playerUIGroup, false);
         FadeUI(robotUIGroup, true);
-
+        ambientPlayer.SetActive(false);
+        soudnsSubmarine.SetActive(false);
+        ambientRobot.SetActive(true);
         OnConnectToRobot?.Invoke();
         if (InputManager.Instance != null) InputManager.Instance.OnPausePressed += ExitRobotMode;
     }
 
     void ExitRobotMode()
     {
+        exitTheRobot.Play();
         _isControllingRobot = false;
         Bootstrapper.IsPlayerInTerminal = false;
         if (InputManager.Instance != null)  InputManager.Instance.OnPausePressed -= ExitRobotMode;
@@ -58,6 +67,9 @@ public class TerminalController : MonoBehaviour, Interactable
         SetComponentsEnabled(playerComponentsToDisable, true);
         FadeUI(robotUIGroup, false);
         FadeUI(playerUIGroup, true);
+        ambientPlayer.SetActive(true);
+        soudnsSubmarine.SetActive(true);
+        ambientRobot.SetActive(false);
         OnDisconnectFromRobot?.Invoke();
     }
     void FadeUI(CanvasGroup group, bool show)

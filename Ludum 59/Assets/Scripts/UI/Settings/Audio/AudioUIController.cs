@@ -9,14 +9,12 @@ public class AudioUIController : MonoBehaviour
     [SerializeField] Slider musicSlider;
     [SerializeField] Slider sfxSlider;
     [SerializeField] Slider uiSlider;
-    [SerializeField] Slider voiceSlider;
     [SerializeField] Slider ambienceSlider;
 
     [SerializeField] TMP_InputField masterInput;
     [SerializeField] TMP_InputField musicInput;
     [SerializeField] TMP_InputField sfxInput;
     [SerializeField] TMP_InputField uiInput;
-    [SerializeField] TMP_InputField voiceInput;
     [SerializeField] TMP_InputField ambienceInput;
 
     [SerializeField] Button applyButton;
@@ -33,14 +31,12 @@ public class AudioUIController : MonoBehaviour
         if (musicSlider != null) musicSlider.onValueChanged.AddListener(OnMusicSliderChanged);
         if (sfxSlider != null) sfxSlider.onValueChanged.AddListener(OnSFXSliderChanged);
         if (uiSlider != null) uiSlider.onValueChanged.AddListener(OnUISliderChanged);
-        if (voiceSlider != null) voiceSlider.onValueChanged.AddListener(OnVoiceSliderChanged);
         if (ambienceSlider != null) ambienceSlider.onValueChanged.AddListener(OnAmbienceSliderChanged);
 
         if (masterInput != null) masterInput.onEndEdit.AddListener(OnMasterInputChanged);
         if (musicInput != null) musicInput.onEndEdit.AddListener(OnMusicInputChanged);
         if (sfxInput != null) sfxInput.onEndEdit.AddListener(OnSFXInputChanged);
         if (uiInput != null) uiInput.onEndEdit.AddListener(OnUIInputChanged);
-        if (voiceInput != null) voiceInput.onEndEdit.AddListener(OnVoiceInputChanged);
         if (ambienceInput != null) ambienceInput.onEndEdit.AddListener(OnAmbienceInputChanged);
     }
 
@@ -53,14 +49,12 @@ public class AudioUIController : MonoBehaviour
         if (musicSlider != null) musicSlider.onValueChanged.RemoveAllListeners();
         if (sfxSlider != null) sfxSlider.onValueChanged.RemoveAllListeners();
         if (uiSlider != null) uiSlider.onValueChanged.RemoveAllListeners();
-        if (voiceSlider != null) voiceSlider.onValueChanged.RemoveAllListeners();
         if (ambienceSlider != null) ambienceSlider.onValueChanged.RemoveAllListeners();
 
         if (masterInput != null) masterInput.onEndEdit.RemoveAllListeners();
         if (musicInput != null) musicInput.onEndEdit.RemoveAllListeners();
         if (sfxInput != null) sfxInput.onEndEdit.RemoveAllListeners();
         if (uiInput != null) uiInput.onEndEdit.RemoveAllListeners();
-        if (voiceInput != null) voiceInput.onEndEdit.RemoveAllListeners();
         if (ambienceInput != null) ambienceInput.onEndEdit.RemoveAllListeners();
     }
 
@@ -74,7 +68,6 @@ public class AudioUIController : MonoBehaviour
         SetSliderAndInputWithoutNotify(musicSlider, musicInput, data.musicVolume);
         SetSliderAndInputWithoutNotify(sfxSlider, sfxInput, data.sfxVolume);
         SetSliderAndInputWithoutNotify(uiSlider, uiInput, data.uiVolume);
-        SetSliderAndInputWithoutNotify(voiceSlider, voiceInput, data.voiceVolume);
         SetSliderAndInputWithoutNotify(ambienceSlider, ambienceInput, data.ambienceVolume);
     }
 
@@ -146,18 +139,6 @@ public class AudioUIController : MonoBehaviour
         float val = ParseSafe(textVal);
         if (val >= 0) { if (uiSlider != null) uiSlider.value = val; }
         else { if (uiInput != null) uiInput.SetTextWithoutNotify(FormatValueForUI(uiSlider.value)); }
-    }
-
-    void OnVoiceSliderChanged(float val)
-    {
-        audioController.SetVoiceVolume(val);
-        if (voiceInput != null) voiceInput.SetTextWithoutNotify(FormatValueForUI(val));
-    }
-    void OnVoiceInputChanged(string textVal)
-    {
-        float val = ParseSafe(textVal);
-        if (val >= 0) { if (voiceSlider != null) voiceSlider.value = val; }
-        else { if (voiceInput != null) voiceInput.SetTextWithoutNotify(FormatValueForUI(voiceSlider.value)); }
     }
 
     void OnAmbienceSliderChanged(float val)

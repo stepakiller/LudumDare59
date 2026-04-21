@@ -37,6 +37,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_26aa84cbdb1d434490885fc8f29df6f5_Texture_1_Texture2D:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -62,7 +66,7 @@ Material:
     - _FlickerSpeed: 50
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _ScanlineDensity: 300
+    - _ScanlineDensity: 350
     - _VignettePower: 3
     m_Colors:
     - _ScanlineColor: {r: 1, g: 1, b: 1, a: 0.6666667}

@@ -22,7 +22,7 @@ public sealed class CollectItems : MonoBehaviour
 
     public void ActivateNextElement()
     {
-        if (!_isRepairEnabled && _repairController != null)
+        if (!_isRepairEnabled && _currentIndex == 1)
         {
             _repairController.enabled = true;
             _isRepairEnabled = true;
