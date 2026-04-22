@@ -18,11 +18,19 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] LayerMask obstacleMask; 
     [SerializeField] float checkRadius = 0.4f;
 
+    [SerializeField] AudioSource audioSource;
+    [SerializeField] AudioClip[] footstepSounds;
+    [SerializeField] float stepDistance = 1.5f;
+    [SerializeField] AudioClip jumpSound;
+    [SerializeField] AudioClip landSound;
+
     CharacterController controller;
     Vector3 velocity;
     bool isGrounded;
+    bool wasGrounded;
     bool isCrouching;
     float currentHeight;
+    float stepCycle;
 
     Vector2 currentMoveInput; 
     Vector2 moveInputVelocity;
@@ -36,14 +44,14 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
+        wasGrounded = isGrounded;
         isGrounded = controller.isGrounded;
+        if (!wasGrounded && isGrounded) HandleLanding();
         if (isGrounded && velocity.y < 0) velocity.y = -2f;
-
         HandleCrouchLogic();
         ApplyCrouchLerp();
         HandleMovement();
         HandleJumpLogic();
-
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
@@ -52,21 +60,46 @@ public class PlayerMove : MonoBehaviour
     {
         Vector2 input = InputManager.Instance != null ? InputManager.Instance.MoveInput : Vector2.zero;
         bool isSprinting = InputManager.Instance != null && InputManager.Instance.IsSprinting;
-
         currentMoveInput = Vector2.SmoothDamp(currentMoveInput, input, ref moveInputVelocity, inputSmoothTime);
-        
         float currentSpeed = isCrouching ? walkSpeed * 0.5f : (isSprinting ? runSpeed : walkSpeed);
-        
         Vector3 move = transform.right * currentMoveInput.x + transform.forward * currentMoveInput.y;
-        
         if (move.magnitude > 1) move.Normalize();
-        controller.Move(move * currentSpeed * Time.deltaTime);
+        Vector3 motion = move * currentSpeed * Time.deltaTime;
+        controller.Move(motion);
+        CalculateFootsteps(motion.magnitude);
+    }
+
+    void CalculateFootsteps(float distanceMoved)
+    {
+        if (!isGrounded || distanceMoved < 0.001f) return;
+        stepCycle += distanceMoved;
+        if (stepCycle >= stepDistance)
+        {
+            PlayFootstepSound();
+            stepCycle = 0f;
+        }
+    }
+    void PlayFootstepSound()
+    {
+        if (footstepSounds == null || footstepSounds.Length == 0) return;
+        int randomIndex = Random.Range(0, footstepSounds.Length);
+        audioSource.PlayOneShot(footstepSounds[randomIndex]);
     }
 
     void HandleJumpLogic()
     {
         bool isJumpPressed = InputManager.Instance != null && InputManager.Instance.IsJumping;
-        if (isJumpPressed && isGrounded && !isCrouching && CanStandUp()) velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        if (isJumpPressed && isGrounded && !isCrouching && CanStandUp())
+        {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            audioSource.PlayOneShot(jumpSound);
+        }
+    }
+
+    void HandleLanding()
+    {
+        audioSource.PlayOneShot(landSound);
+        stepCycle = stepDistance / 2f;
     }
 
     void HandleCrouchLogic()

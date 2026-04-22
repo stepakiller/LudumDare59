@@ -5,6 +5,7 @@ using DG.Tweening;
 
 public class TerminalController : MonoBehaviour, Interactable
 {
+    [SerializeField] RandomPunches randomPunches;
     [SerializeField] AudioSource enterTheRobot;
     [SerializeField] AudioSource exitTheRobot;
     [SerializeField] GameObject ambientPlayer;
@@ -18,11 +19,11 @@ public class TerminalController : MonoBehaviour, Interactable
     [SerializeField] Ease uiEase = Ease.OutSine;
     [SerializeField] Behaviour[] playerComponentsToDisable;
     [SerializeField] Behaviour[] robotComponentsToEnable;
+    [SerializeField] GameObject[] slides;
+    [SerializeField] Collider _collider;
     public UnityEvent OnConnectToRobot;
     public UnityEvent OnDisconnectFromRobot;
-
     bool _isControllingRobot = false;
-
     void Start()
     {
         SetComponentsEnabled(robotComponentsToEnable, false);
@@ -32,6 +33,7 @@ public class TerminalController : MonoBehaviour, Interactable
             robotUIGroup.interactable = false;
             robotUIGroup.blocksRaycasts = false;
         }
+        EnterRobotMode();
     }
 
     public void Interact()
@@ -41,6 +43,11 @@ public class TerminalController : MonoBehaviour, Interactable
 
     void EnterRobotMode()
     {
+        if (slides[0].activeInHierarchy || slides[1].activeInHierarchy)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
         enterTheRobot.Play();
         _isControllingRobot = true;
         Bootstrapper.IsPlayerInTerminal = true;
@@ -56,8 +63,13 @@ public class TerminalController : MonoBehaviour, Interactable
         if (InputManager.Instance != null) InputManager.Instance.OnPausePressed += ExitRobotMode;
     }
 
-    void ExitRobotMode()
+    public void ExitRobotMode()
     {
+        if (slides[0].activeInHierarchy || slides[1].activeInHierarchy)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
         exitTheRobot.Play();
         _isControllingRobot = false;
         Bootstrapper.IsPlayerInTerminal = false;
@@ -75,24 +87,16 @@ public class TerminalController : MonoBehaviour, Interactable
     void FadeUI(CanvasGroup group, bool show)
     {
         if (group == null) return;
-
         group.DOKill(); 
-        
         if (show)
         {
-            group.DOFade(1f, uiFadeDuration)
-                .SetUpdate(true)
-                .SetEase(uiEase); 
-                
+            group.DOFade(1f, uiFadeDuration).SetUpdate(true).SetEase(uiEase); 
             group.interactable = true;
             group.blocksRaycasts = true;
         }
         else
         {
-            group.DOFade(0f, uiFadeDuration)
-                .SetUpdate(true)
-                .SetEase(uiEase);
-                
+            group.DOFade(0f, uiFadeDuration).SetUpdate(true).SetEase(uiEase);
             group.interactable = false;
             group.blocksRaycasts = false;
         }
@@ -103,7 +107,7 @@ public class TerminalController : MonoBehaviour, Interactable
         foreach (var comp in components) if (comp != null) comp.enabled = state;
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (_isControllingRobot && InputManager.Instance != null) InputManager.Instance.OnPausePressed -= ExitRobotMode;
         if (playerUIGroup != null) playerUIGroup.DOKill();

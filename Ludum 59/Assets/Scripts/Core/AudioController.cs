@@ -10,7 +10,6 @@ public class AudioSettingsData
     public float musicVolume = 0.5f;
     public float sfxVolume = 0.5f;
     public float uiVolume = 0.5f;
-    public float voiceVolume = 0.5f;
     public float ambienceVolume = 0.5f;
 
     public void SetDefaults()
@@ -19,7 +18,6 @@ public class AudioSettingsData
         musicVolume = 0.5f;
         sfxVolume = 0.5f;
         uiVolume = 0.5f;
-        voiceVolume = 0.5f;
         ambienceVolume = 0.5f;
     }
 }
@@ -66,7 +64,6 @@ public class AudioController : MonoBehaviour
         SetVolume("MusicVolume", currentSettings.musicVolume);
         SetVolume("SFXVolume", currentSettings.sfxVolume);
         SetVolume("UIVolume", currentSettings.uiVolume);
-        SetVolume("VoiceVolume", currentSettings.voiceVolume);
         SetVolume("AmbienceVolume", currentSettings.ambienceVolume);
     }
     void SetVolume(string exposedParamName, float sliderValue)
@@ -98,12 +95,6 @@ public class AudioController : MonoBehaviour
     {
         currentSettings.uiVolume = sliderValue;
         SetVolume("UIVolume", sliderValue);
-    }
-
-    public void SetVoiceVolume(float sliderValue)
-    {
-        currentSettings.voiceVolume = sliderValue;
-        SetVolume("VoiceVolume", sliderValue);
     }
 
     public void SetAmbienceVolume(float sliderValue)

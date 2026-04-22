@@ -6,6 +6,9 @@ public class Door : MonoBehaviour, Interactable
     [SerializeField] float _openAngle = 90f;
     [SerializeField] float _duration = 0.8f;
     [SerializeField] Ease _moveEase = Ease.OutQuad;
+    [SerializeField] AudioSource _audioSource;
+    [SerializeField] AudioClip _openSound;
+    [SerializeField] AudioClip _closeSound;
     bool _isOpen = false;
     Vector3 _defaultRotation;
     Transform _doorTransform;
@@ -25,6 +28,7 @@ public class Door : MonoBehaviour, Interactable
 
     void OpenDoor()
     {
+        _audioSource.PlayOneShot(_openSound);
         Transform player = Bootstrapper.PlayerTransform;
         if (player == null)
         {
@@ -41,6 +45,7 @@ public class Door : MonoBehaviour, Interactable
 
     void CloseDoor()
     {
+        _audioSource.PlayOneShot(_closeSound);
         _doorTransform.DOLocalRotate(_defaultRotation, _duration).SetEase(_moveEase);
         _isOpen = false;
     }

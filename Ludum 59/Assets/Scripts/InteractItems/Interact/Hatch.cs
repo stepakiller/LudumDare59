@@ -6,6 +6,9 @@ public class Hatch : MonoBehaviour, Interactable
     [SerializeField] float _openAngle = 90f;
     [SerializeField] float _duration = 0.8f;
     [SerializeField] Ease _moveEase = Ease.OutQuad;
+    [SerializeField] AudioSource _audioSource;
+    [SerializeField] AudioClip _openSound;
+    [SerializeField] AudioClip _closeSound;
 
     bool _isOpen = false;
     Vector3 _defaultRotation;
@@ -24,15 +27,14 @@ public class Hatch : MonoBehaviour, Interactable
         else CloseHatch();
     }
 
-    private void OpenHatch()
+    void OpenHatch()
     {
+        _audioSource.PlayOneShot(_openSound);
         Transform player = Bootstrapper.PlayerTransform;
-
         if (player == null)
         {
             return; 
         }
-
         Vector3 directionToPlayer = player.position - _hatchTransform.position;
         float dot = Vector3.Dot(_hatchTransform.forward, directionToPlayer.normalized);
         float targetAngleX = (dot < 0) ? -_openAngle : _openAngle;
@@ -43,6 +45,7 @@ public class Hatch : MonoBehaviour, Interactable
 
     void CloseHatch()
     {
+        _audioSource.PlayOneShot(_closeSound);
         _hatchTransform.DOLocalRotate(_defaultRotation, _duration).SetEase(_moveEase);
         _isOpen = false;
     }

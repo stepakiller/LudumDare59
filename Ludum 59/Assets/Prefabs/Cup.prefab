@@ -20,7 +20,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &2659881329171672095
 Transform:
@@ -167,9 +167,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bccb63097ced8f342949d4e21924c059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemSettings
-  ItemData: {fileID: 0}
+  ItemData: {fileID: 11400000, guid: cdc5666bc5d480a4d8c4e9ce6e5b7366, type: 2}
   Rb: {fileID: 3547532436871261441}
   Col: {fileID: 4524013444295986183}
-  HoldPositionOffset: {x: 0, y: 0, z: 0}
-  HoldRotationOffset: {x: 0, y: 0, z: 0}
+  HoldPositionOffset: {x: -0.4, y: -0.31, z: -1}
+  HoldRotationOffset: {x: -9.08, y: 214.2, z: 0}
   HandScale: 1

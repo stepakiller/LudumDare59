@@ -6,14 +6,21 @@ public class RepairableObject : MonoBehaviour, IHoldInteractable
 {
     public event Action OnRepaired;
     public event Action OnBroken;
+
+    [Header("Настройки починки")]
     [SerializeField] Behaviour _breakdownScript;
     [SerializeField] float _repairDuration = 2f;
     [SerializeField] ItemData _requiredItem;
+
+    [Header("UI")]
     [SerializeField] Image _progressFillImage;
     [SerializeField] GameObject _uiCanvas;
-    float RepairDuration => _repairDuration;
-    ItemData RequiredItem => _requiredItem;
+
+    [Header("Аудио")]
+    [SerializeField] AudioSource _audioSource;
+
     public bool IsRepaired { get; private set; } = true; 
+    
     float _currentRepairProgress = 0f;
     bool _isRepairing = false;
 
@@ -35,6 +42,13 @@ public class RepairableObject : MonoBehaviour, IHoldInteractable
         }
         _isRepairing = true;
         if (_uiCanvas != null) _uiCanvas.SetActive(true);
+        AudioClip itemSound = heldItem != null ? heldItem.UseSound : null;
+        if (_audioSource != null && itemSound != null && !_audioSource.isPlaying)
+        {
+            _audioSource.clip = itemSound;
+            _audioSource.loop = true; 
+            _audioSource.Play();
+        }
     }
 
     public void CancelInteract()
@@ -43,6 +57,7 @@ public class RepairableObject : MonoBehaviour, IHoldInteractable
         _currentRepairProgress = 0f;
         if (_progressFillImage != null) _progressFillImage.fillAmount = 0f;
         if (_uiCanvas != null) _uiCanvas.SetActive(false);
+        StopRepairSound();
     }
 
     void Update()
@@ -53,7 +68,7 @@ public class RepairableObject : MonoBehaviour, IHoldInteractable
         if (_currentRepairProgress >= _repairDuration)
         {
             RepairComplete();
-            CancelInteract();
+            CancelInteract(); 
         }
     }
 
@@ -69,6 +84,12 @@ public class RepairableObject : MonoBehaviour, IHoldInteractable
     {
         IsRepaired = true;
         if (_breakdownScript != null) _breakdownScript.enabled = false;
+        StopRepairSound(); 
         OnRepaired?.Invoke();
+    }
+
+    void StopRepairSound()
+    {
+        if (_audioSource != null && _audioSource.isPlaying) _audioSource.Stop();
     }
 }

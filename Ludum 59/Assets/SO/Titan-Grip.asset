@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Titan-Grip
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   <ItemName>k__BackingField: Titan-Grip
-  <ItemDescription>k__BackingField: 
   <Icon>k__BackingField: {fileID: 21300000, guid: 715288e9af5d0fc45b7986a524477d28, type: 3}
-  <Prefab>k__BackingField: {fileID: 1904129408705859502, guid: cad4d32c21c0dee438ef3210d43ca393, type: 3}
+  <Prefab>k__BackingField: {fileID: 1246178520587988561, guid: cad4d32c21c0dee438ef3210d43ca393, type: 3}
   <InspectScaleMultiplier>k__BackingField: 1
+  <UseSound>k__BackingField: {fileID: 8300000, guid: df296be592d5012488b40e10c5b7680d, type: 3}

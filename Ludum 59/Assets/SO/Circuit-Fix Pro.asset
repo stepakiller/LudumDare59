@@ -15,5 +15,6 @@ MonoBehaviour:
   <ItemName>k__BackingField: Circuit-Fix Pro
   <ItemDescription>k__BackingField: 
   <Icon>k__BackingField: {fileID: 21300000, guid: 715288e9af5d0fc45b7986a524477d28, type: 3}
-  <Prefab>k__BackingField: {fileID: 1904129408705859502, guid: 23984864c82c1854e9563680410c3499, type: 3}
+  <Prefab>k__BackingField: {fileID: 4976264331340457632, guid: 23984864c82c1854e9563680410c3499, type: 3}
   <InspectScaleMultiplier>k__BackingField: 1
+  <UseSound>k__BackingField: {fileID: 0}
