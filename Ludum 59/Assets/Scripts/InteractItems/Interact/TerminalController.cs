@@ -14,7 +14,6 @@ public class TerminalController : MonoBehaviour, Interactable
     [SerializeField] CinemachineCamera monitorZoomCamera;
     [SerializeField] int activeCameraPriority = 20;
     [SerializeField] CanvasGroup playerUIGroup;
-    [SerializeField] CanvasGroup robotUIGroup;
     [SerializeField] float uiFadeDuration = 0.5f;
     [SerializeField] Ease uiEase = Ease.OutSine;
     [SerializeField] Behaviour[] playerComponentsToDisable;
@@ -27,12 +26,6 @@ public class TerminalController : MonoBehaviour, Interactable
     void Start()
     {
         SetComponentsEnabled(robotComponentsToEnable, false);
-        if (robotUIGroup != null)
-        {
-            robotUIGroup.alpha = 0f;
-            robotUIGroup.interactable = false;
-            robotUIGroup.blocksRaycasts = false;
-        }
         EnterRobotMode();
     }
 
@@ -55,7 +48,6 @@ public class TerminalController : MonoBehaviour, Interactable
         monitorZoomCamera.Priority = activeCameraPriority;
         SetComponentsEnabled(robotComponentsToEnable, true);
         FadeUI(playerUIGroup, false);
-        FadeUI(robotUIGroup, true);
         ambientPlayer.SetActive(false);
         soudnsSubmarine.SetActive(false);
         ambientRobot.SetActive(true);
@@ -77,7 +69,6 @@ public class TerminalController : MonoBehaviour, Interactable
         SetComponentsEnabled(robotComponentsToEnable, false);
         monitorZoomCamera.Priority = 0; 
         SetComponentsEnabled(playerComponentsToDisable, true);
-        FadeUI(robotUIGroup, false);
         FadeUI(playerUIGroup, true);
         ambientPlayer.SetActive(true);
         soudnsSubmarine.SetActive(true);
@@ -111,6 +102,5 @@ public class TerminalController : MonoBehaviour, Interactable
     {
         if (_isControllingRobot && InputManager.Instance != null) InputManager.Instance.OnPausePressed -= ExitRobotMode;
         if (playerUIGroup != null) playerUIGroup.DOKill();
-        if (robotUIGroup != null) robotUIGroup.DOKill();
     }
 }

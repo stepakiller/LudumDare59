@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Garbage
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   <ItemName>k__BackingField: Garbage
-  <ItemDescription>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 21300000, guid: 715288e9af5d0fc45b7986a524477d28, type: 3}
-  <Prefab>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: c303577583b28cf4b835838dcba0503e, type: 3}
+  <Prefab>k__BackingField: {fileID: 502704687418385338, guid: b63708faa61138b429ded3a02c341e81, type: 3}
   <InspectScaleMultiplier>k__BackingField: 1
+  <UseSound>k__BackingField: {fileID: 0}

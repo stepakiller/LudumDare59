@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Fire Fire Extinguisher
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   <ItemName>k__BackingField: Fire Fire Extinguisher
-  <ItemDescription>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 21300000, guid: 715288e9af5d0fc45b7986a524477d28, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: b0b2e74ae76e43f46b15472f4db5b5db, type: 3}
   <Prefab>k__BackingField: {fileID: 1501662771313408407, guid: 134ac7c229fb3654192149cb0417fb15, type: 3}
   <InspectScaleMultiplier>k__BackingField: 1
   <UseSound>k__BackingField: {fileID: 8300000, guid: 13fc5f408ae8b80418ff73a163af81f1, type: 3}

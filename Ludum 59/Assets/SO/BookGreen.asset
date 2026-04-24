@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BookGreen
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   <ItemName>k__BackingField: BookGreen
-  <ItemDescription>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 21300000, guid: 715288e9af5d0fc45b7986a524477d28, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 49e88c1dfbd1a4a4fb73a2478d47341e, type: 3}
   <Prefab>k__BackingField: {fileID: 2943763268494755440, guid: 1e28c3d36e617374c8a7e9f0d0415a15, type: 3}
   <InspectScaleMultiplier>k__BackingField: 1
+  <UseSound>k__BackingField: {fileID: 0}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BookBlue
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   <ItemName>k__BackingField: BookBlue
-  <ItemDescription>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 21300000, guid: 715288e9af5d0fc45b7986a524477d28, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 139dcbd6d722ff943877ad60cb7336d8, type: 3}
   <Prefab>k__BackingField: {fileID: 4809221575887270311, guid: 4913358a5a823934cabc6c382ca7780b, type: 3}
   <InspectScaleMultiplier>k__BackingField: 1
+  <UseSound>k__BackingField: {fileID: 0}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Cup
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   <ItemName>k__BackingField: Cup
-  <ItemDescription>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 21300000, guid: 715288e9af5d0fc45b7986a524477d28, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 04148964ddd7ae84fb577f3cc6f277a2, type: 3}
   <Prefab>k__BackingField: {fileID: 6508179747503225628, guid: c41fec9ea34b82c478a9fe9761532092, type: 3}
   <InspectScaleMultiplier>k__BackingField: 1
+  <UseSound>k__BackingField: {fileID: 0}

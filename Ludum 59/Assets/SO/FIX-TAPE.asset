@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: FIX-TAPE
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   <ItemName>k__BackingField: Fix-Tape
-  <Icon>k__BackingField: {fileID: 21300000, guid: 715288e9af5d0fc45b7986a524477d28, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 756f903f6b7aaef4eada260106d312b2, type: 3}
   <Prefab>k__BackingField: {fileID: 5882634118304558373, guid: b5e836c2f4f05514193422b04b9a02f3, type: 3}
   <InspectScaleMultiplier>k__BackingField: 1
   <UseSound>k__BackingField: {fileID: 8300000, guid: e8a7091e03d38fc42b36260b17eb7220, type: 3}
